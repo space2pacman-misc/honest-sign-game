@@ -29,15 +29,120 @@
       border-radius: 0.5em;
       cursor: pointer;
     }
+
+    .modal {
+      display: none;
+      width: 250px;
+      height: 250px;
+      background: #fff;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 150px;
+      margin: auto;
+      box-shadow: 5px 5px 10px;
+      border-radius: 5px;
+      font-family: Arial;
+      font-weight: bold;
+      text-align: center;
+      font-size: 18px;
+      padding-top: 30px;
+      box-sizing: border-box;
+      z-index: 2;
+    }
+
+    .shadow {
+      display: none;
+      width: 100vw;
+      height: 100vh;
+      position: absolute;
+      background: rgb(0 0 0 / 50%);
+      z-index: 1;
+    }
+
+    .lds-dual-ring {
+      display: inline-block;
+      width: 130px;
+      height: 130px;
+      margin-top: 30px;
+    }
+
+    .lds-dual-ring:after {
+      content: " ";
+      display: block;
+      width: 100px;
+      height: 100px;
+      margin: 8px;
+      border-radius: 50%;
+      border: 6px solid #f0ee0e;
+      border-color: #f0ee0e transparent #f0ee0e transparent;
+      animation: lds-dual-ring 1.2s linear infinite;
+    }
+
+    @keyframes lds-dual-ring {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .progress {
+      display: flex;
+      height: 2rem;
+      font-size: .75rem;
+      background-color: #e9ecef;
+      border-radius: 0.25rem;
+      position: absolute;
+      width: 380px;
+      top: 8px;
+      left: 0;
+      right: 0;
+      margin: auto;
+    }
+
+    .progress-bar {
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      -webkit-box-orient: vertical;
+      -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+      flex-direction: column;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+      justify-content: center;
+      color: #fff;
+      text-align: center;
+      background-color: #007bff;
+      transition: width .6s ease;
+      font-family: Arial;
+    }
   </style>
   
+  <div class="shadow"></div>
+
   <canvas id="field"></canvas>
 
   <div class="data-matrix"></div>
 
+  <div class="modal">
+    Сканируется продукт
+    <div class="lds-dual-ring"></div>
+  </div>
+
+  <div class="progress">
+    <div class="progress-bar"></div>
+  </div>
+
   <script src="https://unpkg.com/elpy/dist/elpy.min.js"></script>
   <script>
     const dataMatrix = document.querySelector('.data-matrix');
+    const modal = document.querySelector('.modal');
+    const shadow = document.querySelector('.shadow');
+    const progressBar = document.querySelector('.progress-bar');
     const elpy = new Elpy('#field', 400, 600);
     const cat = elpy.create('cat', 0, 100, 400, 400, {
       images: [
@@ -82,7 +187,7 @@
       ],
       custom: {
         delta: 1,
-        satiety: 100
+        satiety: 300
       }
     });
     const bubble = elpy.create('bubble', -1000, -1000, 100, 100, {
@@ -102,6 +207,9 @@
     elpy.add(cat);
     
     elpy.tick(() => {
+      progressBar.style.width = `${((cat.options.custom.satiety / 300) * 100).toFixed()}%`;
+      progressBar.innerHTML = `${cat.options.custom.satiety} / 300`;
+
       if (cat.state === 'walk:left' || cat.state === 'walk:right') {
         if (cat.x >= 100) {
           cat.options.custom.delta = -1;
@@ -126,8 +234,6 @@
         cat.options.custom.satiety = -1;
         cat.state = 'meow';
 
-        
-
         bubble.move(cat.x + 200, cat.y + 30);
         milk.move(bubble.x + 25, bubble.y + 15);
       }
@@ -151,14 +257,22 @@
     });
 
     dataMatrix.addEventListener('click', () => {
-      cat.options.custom.satiety = 300;
-      cat.state = 'laying:down';
-
-      bubble.move(-1000, -1000);
-      milk.move(-1000, -1000);
+      modal.style.display = 'block';
+      shadow.style.display = 'block';
 
       setTimeout(() => {
-        cat.state = 'laying:up';
+        modal.style.display = 'none';
+        shadow.style.display = 'none';
+
+        cat.options.custom.satiety = 300;
+        cat.state = 'laying:down';
+
+        bubble.move(-1000, -1000);
+        milk.move(-1000, -1000);
+
+        setTimeout(() => {
+          cat.state = 'laying:up';
+        }, 3000);
       }, 3000);
     });
 
