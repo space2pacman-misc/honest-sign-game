@@ -208,7 +208,7 @@
     
     elpy.tick(() => {
       progressBar.style.width = `${((cat.options.custom.satiety / 300) * 100).toFixed()}%`;
-      progressBar.innerHTML = `${cat.options.custom.satiety} / 300`;
+      progressBar.innerHTML = `Еда: ${cat.options.custom.satiety} / 300`;
 
       if (cat.state === 'walk:left' || cat.state === 'walk:right') {
         if (cat.x >= 100) {
@@ -221,7 +221,7 @@
           cat.state = 'walk:right';
         }
 
-        if (cat.options.custom.satiety > 0) {
+        if (cat.options.custom.satiety > 100) {
           cat.options.custom.satiety -= 1;
         }
 
@@ -230,8 +230,8 @@
 
       //
 
-      if (cat.options.custom.satiety === 0) {
-        cat.options.custom.satiety = -1;
+      if (cat.options.custom.satiety === 100) {
+        cat.options.custom.satiety = 99;
         cat.state = 'meow';
 
         bubble.move(cat.x + 200, cat.y + 30);
