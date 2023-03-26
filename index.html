@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game</title>
+</head>
+<body>
+  <style>
+    #field {
+      border: 1px solid;
+      margin: 0 auto;
+    }
+
+    .data-matrix {
+      width: 100px;
+      height: 100px;
+      background-image: url('data-matrix.png');
+      background-repeat: no-repeat;
+      background-position: 50% 50%;
+      background-size: 70%;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 470px;
+      margin: auto;
+      background-color: #f0ee0e;
+      border-radius: 0.5em;
+      cursor: pointer;
+    }
+  </style>
+  
+  <canvas id="field"></canvas>
+
+  <div class="data-matrix"></div>
+
+  <script src="https://unpkg.com/elpy/dist/elpy.min.js"></script>
+  <script>
+    const dataMatrix = document.querySelector('.data-matrix');
+    const elpy = new Elpy('#field', 400, 600);
+    const cat = elpy.create('cat', 0, 100, 400, 400, {
+      images: [
+        {
+          paths: ['cat/idle/tile000.png', 'cat/idle/tile001.png', 'cat/idle/tile002.png', 'cat/idle/tile003.png', 'cat/idle/tile004.png', 'cat/idle/tile005.png', 'cat/idle/tile006.png', 'cat/idle/tile007.png', 'cat/idle/tile008.png', 'cat/idle/tile009.png'],
+          state: 'idle',
+          time: 100
+        },
+        {
+          paths: ['cat/walk/left/tile000.png', 'cat/walk/left/tile001.png', 'cat/walk/left/tile002.png', 'cat/walk/left/tile003.png', 'cat/walk/left/tile004.png', 'cat/walk/left/tile005.png', 'cat/walk/left/tile006.png', 'cat/walk/left/tile007.png'],
+          state: 'walk:left',
+          time: 100
+        },
+        {
+          paths: ['cat/walk/right/tile000.png', 'cat/walk/right/tile001.png', 'cat/walk/right/tile002.png', 'cat/walk/right/tile003.png', 'cat/walk/right/tile004.png', 'cat/walk/right/tile005.png', 'cat/walk/right/tile006.png', 'cat/walk/right/tile007.png'],
+          state: 'walk:right',
+          time: 100
+        },
+        {
+          paths: ['cat/meow/tile000.png', 'cat/meow/tile001.png', 'cat/meow/tile002.png', 'cat/meow/tile003.png'],
+          state: 'meow',
+          time: 500
+        },
+        {
+          paths: ['cat/laying/tile000.png', 'cat/laying/tile001.png', 'cat/laying/tile002.png', 'cat/laying/tile003.png', 'cat/laying/tile004.png', 'cat/laying/tile005.png', 'cat/laying/tile006.png', 'cat/laying/tile007.png'],
+          state: 'laying:down',
+          time: 100
+        },
+        {
+          paths: ['cat/laying/tile007.png', 'cat/laying/tile006.png', 'cat/laying/tile005.png', 'cat/laying/tile004.png', 'cat/laying/tile003.png', 'cat/laying/tile002.png', 'cat/laying/tile001.png', 'cat/laying/tile000.png'],
+          state: 'laying:up',
+          time: 100
+        },
+        {
+          paths: ['cat/laying/tile007.png'],
+          state: 'sitting'
+        },
+        {
+          paths: ['cat/laying/tile000.png'],
+          state: 'stand'
+        }
+      ],
+      custom: {
+        delta: 1,
+        satiety: 100
+      }
+    });
+    const bubble = elpy.create('bubble', -1000, -1000, 100, 100, {
+      image: 'bubble.png'
+    });
+
+    const milk = elpy.create('milk', -1000, -1000, 50, 50, {
+      image: 'milk.png'
+    });
+
+    elpy.add(bubble);
+    elpy.add(milk);
+
+    cat.animate = true;
+    cat.state = 'walk:right';
+
+    elpy.add(cat);
+    
+    elpy.tick(() => {
+      if (cat.state === 'walk:left' || cat.state === 'walk:right') {
+        if (cat.x >= 100) {
+          cat.options.custom.delta = -1;
+          cat.state = 'walk:left';
+        }
+
+        if (cat.x <= -100) {
+          cat.options.custom.delta = 1;
+          cat.state = 'walk:right';
+        }
+
+        if (cat.options.custom.satiety > 0) {
+          cat.options.custom.satiety -= 1;
+        }
+
+        cat.move(cat.x + cat.options.custom.delta, cat.y);
+      }
+
+      //
+
+      if (cat.options.custom.satiety === 0) {
+        cat.options.custom.satiety = -1;
+        cat.state = 'meow';
+
+        
+
+        bubble.move(cat.x + 200, cat.y + 30);
+        milk.move(bubble.x + 25, bubble.y + 15);
+      }
+
+      if (cat.state === 'laying:down') {
+        if (cat.options.images.cached['laying:down']?.currentImage?.getAttribute('src') === 'cat/laying/tile007.png') {
+          cat.options.images.cached['laying:down'].currentImage = cat.options.images.cached['laying:down']?.list[0];
+          cat.state = 'sitting';
+        }
+      }
+
+      if (cat.state === 'laying:up') {
+        if (cat.options.images.cached['laying:up']?.currentImage?.getAttribute('src') === 'cat/laying/tile000.png') {
+          cat.options.images.cached['laying:up'].currentImage = cat.options.images.cached['laying:up']?.list[0];
+          cat.state = 'walk:right';
+        }
+      }
+
+      /////////////////////////////////////////
+
+    });
+
+    dataMatrix.addEventListener('click', () => {
+      cat.options.custom.satiety = 300;
+      cat.state = 'laying:down';
+
+      bubble.move(-1000, -1000);
+      milk.move(-1000, -1000);
+
+      setTimeout(() => {
+        cat.state = 'laying:up';
+      }, 3000);
+    });
+
+    /* 
+    live
+    
+    cat
+    idle
+    отдыхает
+    передвигается (left | right) (когда сыт)
+    
+    голодает
+    ест
+
+    cat
+    walk (left | right)
+      if walk satiety--
+
+
+    */
+  </script>
+</body>
+</html>
