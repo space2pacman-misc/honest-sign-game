@@ -184,7 +184,7 @@
       ],
       custom: {
         delta: 1,
-        satiety: 100
+        satiety: 300
       }
     });
     const bubble = elpy.create('bubble', -1000, -1000, 100, 100, {
@@ -204,8 +204,8 @@
     elpy.add(cat);
     
     elpy.tick(() => {
-      progressBar.style.width = `${((cat.options.custom.satiety / 100) * 100).toFixed()}%`;
-      progressBar.innerHTML = `Еда: ${cat.options.custom.satiety} / 100`;
+      progressBar.style.width = `${((cat.options.custom.satiety / 300) * 100).toFixed()}%`;
+      progressBar.innerHTML = `Еда: ${cat.options.custom.satiety} / 300`;
 
       if (cat.state === 'walk:left' || cat.state === 'walk:right') {
         if (cat.x >= 100) {
@@ -218,15 +218,15 @@
           cat.state = 'walk:right';
         }
 
-        if (cat.options.custom.satiety > 30) {
+        if (cat.options.custom.satiety > 100) {
           cat.options.custom.satiety -= 1;
         }
 
         cat.move(cat.x + cat.options.custom.delta, cat.y);
       }
 
-      if (cat.options.custom.satiety === 30) {
-        cat.options.custom.satiety = 29;
+      if (cat.options.custom.satiety === 100) {
+        cat.options.custom.satiety = 99;
         cat.state = 'meow';
 
         bubble.move(cat.x + 200, cat.y + 30);
@@ -263,7 +263,7 @@
         modal.style.display = 'none';
         shadow.style.display = 'none';
 
-        cat.options.custom.satiety = 100;
+        cat.options.custom.satiety = 300;
         cat.state = 'laying:down';
 
         bubble.move(-1000, -1000);
