@@ -248,7 +248,14 @@
       if (cat.state === 'laying:up') {
         if (cat.options.images.cached['laying:up']?.currentImage?.getAttribute('src') === 'cat/laying/tile000.png') {
           cat.options.images.cached['laying:up'].currentImage = cat.options.images.cached['laying:up']?.list[0];
-          cat.state = 'walk:right';
+          
+          if (cat.options.custom.delta === -1) {
+            cat.state = 'walk:left';
+          }
+
+          if (cat.options.custom.delta === 1) {
+            cat.state = 'walk:right';
+          }
         }
       }
 
